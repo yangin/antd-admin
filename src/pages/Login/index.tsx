@@ -3,7 +3,6 @@ import { useModel, history } from 'umi';
 import { message } from 'antd';
 import LoginForm from '@/components/LoginForm';
 import { login, getCurrentUser } from '@/services/system';
-import { locationQuery } from '@/utils/location';
 
 const Login: React.FC = () => {
   const { setInitialState } = useModel('@@initialState');
@@ -43,7 +42,8 @@ const Login: React.FC = () => {
     await initUserInfo();
 
     //登陆成功后跳转
-    const { redirect } = locationQuery();
+    const { query } = history.location;
+    const { redirect } = query as { redirect: string };
     history.push(redirect || '/');
   }, []);
 
