@@ -3,6 +3,7 @@ import type { MenuDataItem } from '@ant-design/pro-layout';
 import { history } from 'umi';
 import { getMenu, getCurrentUser } from '@/services/system';
 import IconMap from '@/components/IconMap';
+import HeaderRight from '@/components/HeaderRight';
 import { handleRoutesTreeToArray } from '@/helper/access';
 
 const loginPath = '/login';
@@ -30,6 +31,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
         return loopMenuItem(menuData);
       },
     },
+    rightContentRender: () => <HeaderRight />,
     ...initialState?.preference,
   };
 };

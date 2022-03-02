@@ -1,4 +1,3 @@
-import { request } from 'umi';
 import { get, post } from '@/utils/request';
 import { system } from '@/config/api';
 
@@ -8,7 +7,7 @@ export async function login(data: object) {
 }
 
 /** 退出登录接口 */
-export async function logout(data: object) {
+export async function logout() {
   return post(system.logout);
 }
 
