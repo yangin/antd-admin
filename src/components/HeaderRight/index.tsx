@@ -1,16 +1,16 @@
-import { LockOutlined, UserOutlined } from '@ant-design/icons';
-import { Form, Input, Button, Checkbox, Row, Col, Space, Avatar } from 'antd';
+import { useMemo } from 'react';
+import { Space } from 'antd';
 import AvatarDropdown from './AvatarDropdown';
-import styles from './index.less';
 
-interface HeaderRightProps {}
-
-const HeaderRight: React.FC<HeaderRightProps> = (props) => {
-  return (
-    <Space>
-      <AvatarDropdown />
-    </Space>
-  );
+const HeaderRight: React.FC = () => {
+  const render = useMemo(() => {
+    return (
+      <Space>
+        <AvatarDropdown />
+      </Space>
+    );
+  }, []);
+  return render;
 };
 
 export default HeaderRight;

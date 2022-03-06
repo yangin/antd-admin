@@ -1,12 +1,15 @@
 import { defineConfig } from 'umi';
-import { layout } from './plugin.config';
+import { preference } from './preference.config';
 import routes from './routes';
 
 const config = defineConfig({
-  layout,
+  layout: {
+    ...preference,
+  },
+  theme: {
+    'root-entry-name': 'variable',
+  },
   routes,
 });
 
 export default config;
-
-

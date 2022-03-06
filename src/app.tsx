@@ -1,10 +1,13 @@
 import type { RunTimeLayoutConfig } from 'umi';
 import type { MenuDataItem } from '@ant-design/pro-layout';
 import { history } from 'umi';
+import { ConfigProvider } from 'antd';
 import { getMenu, getCurrentUser } from '@/services/system';
 import IconMap from '@/components/IconMap';
 import HeaderRight from '@/components/HeaderRight';
 import { handleRoutesTreeToArray } from '@/helper/access';
+import { DEFAULT_PREFERENCE } from '@/constants/preference';
+import { preference as configPreference } from '../config/preference.config';
 
 const loginPath = '/login';
 
@@ -17,6 +20,13 @@ const loopMenuItem = (menus: MenuDataItem[]): MenuDataItem[] => {
 };
 
 export const layout: RunTimeLayoutConfig = ({ initialState }) => {
+  // 动态设置主题色
+  ConfigProvider.config({
+    theme: {
+      primaryColor: initialState?.preference?.primaryColor,
+    },
+  });
+
   return {
     menu: {
       // 每当 initialState?.currentUser?.userid 发生修改时重新执行 request
@@ -49,5 +59,8 @@ export async function getInitialState(): Promise<{
   }
   const response = await getCurrentUser();
   const { preference, ...currentUser } = response.data;
-  return { preference, currentUser };
+  return {
+    preference: { ...DEFAULT_PREFERENCE, ...configPreference, ...preference },
+    currentUser,
+  };
 }

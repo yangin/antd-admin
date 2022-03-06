@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { history, useModel } from 'umi';
 import {
   LogoutOutlined,
@@ -6,15 +6,12 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import { Avatar, Menu, Spin, Dropdown } from 'antd';
-import type { MenuInfo } from 'rc-menu/lib/interface';
+import theme from '@/theme';
 import { logout } from '@/services/system';
-import PersonCenter from './PersonCenter';
-import Preference from './Preference';
+import { Preference } from '@/type/preference';
+import PersonCenterDrawer from '../PersonCenterDrawer';
+import PreferenceDrawer from '../PreferenceDrawer';
 import styles from './index.less';
-
-export type GlobalHeaderRightProps = {
-  menu?: boolean;
-};
 
 /**
  * 退出登录，并且将当前的 url 保存
@@ -33,76 +30,109 @@ const onLogout = async () => {
   }
 };
 
-const onPersonCenter = () => {
-  history.push('/personCenter');
-};
-
-const onSetting = () => {};
-
-const eventMap = {
-  logout: () => onLogout(),
-  center: () => onPersonCenter(),
-  setting: () => onSetting(),
-};
-
-const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
+const AvatarDropdown: React.FC<GlobalHeaderRightProps> = () => {
   const { initialState, setInitialState } = useModel('@@initialState');
   const {
     currentUser: { name, avatar },
+    preference,
   } = initialState as any;
+  const [drawer, setDrawer] = useState('');
 
-  const onMenuClick = useCallback(
-    (event: MenuInfo) => {
-      const { key } = event;
-      eventMap[key] && eventMap[key]();
+  const isShowPersonCenter = drawer === 'personCenter';
+  const isShowPreference = drawer === 'preference';
+  const currentNavTheme =
+    preference.layout === 'mix' ||
+    (preference.layout === 'top' && preference.navTheme === 'dark')
+      ? 'dark'
+      : 'light';
+
+  const handlePreference = useCallback(
+    (newPreference: Preference) => {
+      setInitialState((state: any) => ({
+        ...state,
+        preference: newPreference,
+      }));
     },
     [setInitialState],
   );
 
-  const loading = (
-    <span>
-      <Spin
-        size="small"
-        style={{
-          marginLeft: 8,
-          marginRight: 8,
-        }}
-      />
-    </span>
-  );
+  const onDrawer = useCallback((e) => {
+    setDrawer(e.key);
+  }, []);
+
+  const onCloseDrawer = useCallback(() => {
+    setDrawer('');
+  }, []);
 
   if (!initialState || !name) {
-    return loading;
+    return (
+      <span>
+        <Spin size="small" style={{ marginLeft: 8, marginRight: 8 }} />
+      </span>
+    );
   }
 
-  const menuHeaderDropdown = (
-    <Menu selectedKeys={[]} onClick={onMenuClick}>
-      <Menu.Item key="center">
-        <UserOutlined />
-        <span className={styles.menuLabel}>个人中心</span>
-      </Menu.Item>
-      <Menu.Item key="settings">
-        <SettingOutlined />
-        <span className={styles.menuLabel}>个人设置</span>
-      </Menu.Item>
-      <Menu.Divider />
-      <Menu.Item key="logout">
-        <LogoutOutlined />
-        <span className={styles.menuLabel}>退出登录</span>
-      </Menu.Item>
-    </Menu>
-  );
+  const menuHeaderDropdownRender = useMemo(() => {
+    return (
+      <Menu>
+        <Menu.Item key="personCenter" onClick={onDrawer}>
+          <UserOutlined />
+          <span className={styles.menuLabel}>个人中心</span>
+        </Menu.Item>
+        <Menu.Item key="preference" onClick={onDrawer}>
+          <SettingOutlined />
+          <span className={styles.menuLabel}>偏好设置</span>
+        </Menu.Item>
+        <Menu.Divider />
+        <Menu.Item key="logout" onClick={onLogout}>
+          <LogoutOutlined />
+          <span className={styles.menuLabel}>退出登录</span>
+        </Menu.Item>
+      </Menu>
+    );
+  }, []);
+
+  const avatarRender = useMemo(() => {
+    return (
+      <Dropdown overlay={menuHeaderDropdownRender} placement="bottomCenter">
+        <div>
+          <Avatar size="small" src={avatar} alt="avatar" />
+          <span
+            className={styles.name}
+            style={{ color: theme['fontColor'][currentNavTheme] }}
+          >
+            {name}
+          </span>
+        </div>
+      </Dropdown>
+    );
+  }, [menuHeaderDropdownRender, avatar, currentNavTheme, name]);
+
+  const personCenterDrawerRender = useMemo(() => {
+    return (
+      <PersonCenterDrawer
+        visible={isShowPersonCenter}
+        onClose={onCloseDrawer}
+      />
+    );
+  }, [isShowPersonCenter]);
+
+  const preferenceDrawerRender = useMemo(() => {
+    return (
+      <PreferenceDrawer
+        visible={isShowPreference}
+        onClose={onCloseDrawer}
+        preference={preference}
+        onChangeSetting={handlePreference}
+      />
+    );
+  }, [isShowPreference, preference, handlePreference]);
 
   return (
     <>
-      <Dropdown overlay={menuHeaderDropdown} placement="bottomCenter">
-        <div>
-          <Avatar size="small" src={avatar} alt="avatar" />
-          <span className={styles.name}>{name}</span>
-        </div>
-      </Dropdown>
-      <PersonCenter />
-      <Preference />
+      {avatarRender}
+      {personCenterDrawerRender}
+      {preferenceDrawerRender}
     </>
   );
 };

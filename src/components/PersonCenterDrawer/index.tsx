@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { Drawer, Button } from 'antd';
 
-const Preference: React.FC = () => {
-  const [visible, setVisible] = useState(false);
-  const showDrawer = () => {
-    setVisible(true);
-  };
-  const onClose = () => {
-    setVisible(false);
-  };
+interface PersonCenterProps {
+  visible: boolean;
+  onClose: () => void;
+}
+
+const PersonCenter: React.FC<PersonCenterProps> = (props) => {
+  const { visible, onClose } = props;
+
   return (
     <Drawer
-      title="Basic Drawer"
+      title="个人中心"
       placement="right"
       onClose={onClose}
       visible={visible}
@@ -23,4 +23,4 @@ const Preference: React.FC = () => {
   );
 };
 
-export default Preference;
+export default PersonCenter;

@@ -21,7 +21,7 @@ const getAccess = () => {
 
 const getPreference = () => {
   return {
-    theme: 'light',
+    navTheme: 'dark',
   };
 };
 
