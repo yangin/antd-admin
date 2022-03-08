@@ -4,6 +4,7 @@ import {
   LogoutOutlined,
   SettingOutlined,
   UserOutlined,
+  LockOutlined,
 } from '@ant-design/icons';
 import { Avatar, Menu, Spin, Dropdown } from 'antd';
 import theme from '@/theme';
@@ -11,6 +12,7 @@ import { logout } from '@/services/system';
 import { Preference } from '@/type/preference';
 import PersonCenterDrawer from '../PersonCenterDrawer';
 import PreferenceDrawer from '../PreferenceDrawer';
+import ResetPasswordModal from '../ResetPasswordModal';
 import styles from './index.less';
 
 /**
@@ -37,6 +39,7 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = () => {
     preference,
   } = initialState as any;
   const [drawer, setDrawer] = useState('');
+  const [isShowPasswordModal, setIsShowPasswordModal] = useState(false);
 
   const isShowPersonCenter = drawer === 'personCenter';
   const isShowPreference = drawer === 'preference';
@@ -64,6 +67,10 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = () => {
     setDrawer('');
   }, []);
 
+  const onPassword = useCallback(() => {
+    setIsShowPasswordModal(true);
+  }, []);
+
   if (!initialState || !name) {
     return (
       <span>
@@ -82,6 +89,10 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = () => {
         <Menu.Item key="preference" onClick={onDrawer}>
           <SettingOutlined />
           <span className={styles.menuLabel}>偏好设置</span>
+        </Menu.Item>
+        <Menu.Item key="preference" onClick={onPassword}>
+          <LockOutlined />
+          <span className={styles.menuLabel}>修改密码</span>
         </Menu.Item>
         <Menu.Divider />
         <Menu.Item key="logout" onClick={onLogout}>
@@ -128,11 +139,23 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = () => {
     );
   }, [isShowPreference, preference, handlePreference]);
 
+  const resetPasswordModalRender = useMemo(() => {
+    return (
+      <ResetPasswordModal
+        visible={isShowPasswordModal}
+        onClose={() => {
+          setIsShowPasswordModal(false);
+        }}
+      />
+    );
+  }, [isShowPasswordModal]);
+
   return (
     <>
       {avatarRender}
       {personCenterDrawerRender}
       {preferenceDrawerRender}
+      {resetPasswordModalRender}
     </>
   );
 };
